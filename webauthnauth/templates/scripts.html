@@ -1,0 +1,74 @@
+<script src="https://cdn.jsdelivr.net/gh/herrjemand/Base64URL-ArrayBuffer@latest/lib/base64url-arraybuffer.js"></script>
+<script>
+    async function register() {
+        let registration_config = await fetch("{% url "get_registration_config" %}")
+            .then(response => response.json())
+            .then(login_config => {
+                login_config.user.id = window.base64url.decode(login_config.user.id);
+                login_config.challenge = window.base64url.decode(login_config.challenge);
+                if (login_config.hasOwnProperty("excludeCredentials")) {
+                    for (let i = 0; i < login_config.excludeCredentials.length; i++) {
+                        login_config.excludeCredentials[i].id = window.base64url.decode(login_config.excludeCredentials[i].id);
+                    }
+                }
+                return login_config
+            });
+
+        const credential = await navigator.credentials.create({
+            publicKey: registration_config
+        });
+
+        const encoded = {
+            "rawId": window.base64url.encode(credential.rawId),
+            "id": credential.id,
+            "type": credential.type,
+            "response": {
+                "attestationObject": window.base64url.encode(credential.response.attestationObject),
+                "clientDataJSON": window.base64url.encode(credential.response.clientDataJSON),
+            }
+        }
+
+        await fetch("{% url "register" %}", {"method": "POST", "body": JSON.stringify(encoded)});
+    }
+
+    async function login_webauth(username) {
+        let form_data = new FormData();
+        form_data.append("login", username);
+
+        let registration_config = await fetch("{% url "get_login_config" %}", {"method": "POST", body: form_data})
+            .then(response => response.json())
+            .then(login_config => {
+                login_config.challenge = window.base64url.decode(login_config.challenge);
+                if (login_config.hasOwnProperty("allowCredentials")) {
+                    for (let i = 0; i < login_config.allowCredentials.length; i++) {
+                        login_config.allowCredentials[i].id = window.base64url.decode(login_config.allowCredentials[i].id);
+                    }
+                }
+                return login_config
+            });
+
+        const credential = await navigator.credentials.get({
+            publicKey: registration_config
+        });
+
+        const encoded = {
+            "rawId": window.base64url.encode(credential.rawId),
+            "id": credential.id,
+            "type": credential.type,
+            "response": {
+                "authenticatorData": window.base64url.encode(credential.response.authenticatorData),
+                "clientDataJSON": window.base64url.encode(credential.response.clientDataJSON),
+                "signature": window.base64url.encode(credential.response.signature),
+                "userHandle": window.base64url.encode(credential.response.userHandle),
+            }
+        }
+
+        await fetch("{% url "login_webauthn" %}", {"method": "POST", "body": JSON.stringify(encoded)})
+            .then(response => {
+                if (response.status === 200) {
+                    window.location.replace("{% url "index" %}");
+                }
+            })
+    }
+
+</script>
