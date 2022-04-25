@@ -56,7 +56,7 @@ def registration_config(request):
         exclude_credentials=[PublicKeyCredentialDescriptor(id=base64decode(auth_data.credential_id)) for auth_data in
                              currently_registered],
         challenge=challenge.encode("utf-8"),
-        timeout=12000,
+        timeout=300000,
     )
     return HttpResponse(content=options_to_json(options), content_type="application/json")
 
@@ -118,7 +118,7 @@ def login_config(request):
     options = generate_authentication_options(
         rp_id=settings.RELYING_PARTY_ID,
         challenge=challenge.encode("utf-8"),
-        timeout=12000,
+        timeout=120000,
         user_verification=UserVerificationRequirement.DISCOURAGED,
         allow_credentials=[PublicKeyCredentialDescriptor(id=base64decode(auth_data.credential_id))
                            for auth_data in users_keys],
