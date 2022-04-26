@@ -49,7 +49,7 @@ class WebAuthNBackend:
                 expected_rp_id=settings.RELYING_PARTY_ID,
                 expected_origin=settings.EXPECTED_ORIGIN,
                 require_user_verification=False,
-                credential_current_sign_count=0,
+                credential_current_sign_count=credential.sign_count,
                 credential_public_key=base64decode(credential.public_key)
             )
         except Exception as e:
@@ -57,5 +57,7 @@ class WebAuthNBackend:
             messages.error(request, f"Authentication failed", fail_silently=True)
             return None
 
+        credential.sign_count = authentication_verification.new_sign_count
+        credential.save(update_fields=["sign_count"])
         request.session["logging_in_with_webauthn"] = True
         return credential.user
