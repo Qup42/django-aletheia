@@ -3,6 +3,7 @@ from django.contrib import messages
 from django.contrib.auth import get_user_model
 from django.utils import timezone
 from webauthn import verify_authentication_response
+from webauthn.helpers.exceptions import InvalidAuthenticationResponse
 from webauthn.helpers.structs import AuthenticationCredential
 
 from webauthnauth import settings
@@ -52,8 +53,8 @@ class WebAuthNBackend:
                 credential_current_sign_count=credential.sign_count,
                 credential_public_key=base64decode(credential.public_key)
             )
-        except Exception as e:
-            # TODO: be more specific and catch more specific errors
+        except InvalidAuthenticationResponse:
+            # TODO: give concrete feedback about why the authentication failed?
             messages.error(request, f"Authentication failed", fail_silently=True)
             return None
 
