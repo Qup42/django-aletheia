@@ -8,7 +8,7 @@ from webauthn.helpers.structs import AuthenticationCredential
 
 from webauthnauth import settings
 from webauthnauth.models import AuthData
-from webauthnauth.views import base64decode
+from webauthnauth.util import base64decode
 
 
 class WebAuthNBackend:

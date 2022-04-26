@@ -1,4 +1,3 @@
-import base64
 import json
 import secrets
 from json import JSONDecodeError
@@ -29,6 +28,7 @@ from webauthn.helpers.structs import (
 from webauthnauth import settings
 from webauthnauth.forms import WebAuthNLoginForm
 from webauthnauth.models import AuthData
+from webauthnauth.util import base64encode, base64decode
 
 
 class HttpUnprocessableEntity(HttpResponseRedirectBase):
@@ -60,14 +60,6 @@ def registration_config(request):
         timeout=300000,
     )
     return HttpResponse(content=options_to_json(options), content_type="application/json")
-
-
-def base64encode(s: bytes) -> str:
-    return base64.b64encode(s).decode()
-
-
-def base64decode(s: str) -> bytes:
-    return base64.b64decode(s)
 
 
 @login_required()
