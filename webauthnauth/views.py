@@ -9,7 +9,6 @@ from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse, HttpResponseForbidden
 from django.http.response import HttpResponseRedirectBase
-from django.views.decorators.csrf import csrf_exempt
 from webauthn import (
     generate_registration_options,
     verify_registration_response,
@@ -69,7 +68,6 @@ def base64decode(s: str) -> bytes:
     return base64.b64decode(s)
 
 
-@csrf_exempt
 @login_required()
 def register(request):
     if "challenge" not in request.session:
@@ -101,7 +99,6 @@ def register(request):
     return HttpResponse("Success")
 
 
-@csrf_exempt
 def login_config(request):
     challenge = secrets.token_urlsafe(64)
 
@@ -127,7 +124,6 @@ def login_config(request):
     return HttpResponse(content=options_to_json(options), content_type="application/json")
 
 
-@csrf_exempt
 def login_webauthn(request):
     try:
         login_response_json = json.loads(request.body.decode("utf-8"))
