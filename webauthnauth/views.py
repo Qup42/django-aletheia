@@ -3,12 +3,14 @@ import json
 import secrets
 from json import JSONDecodeError
 
-from allauth.account.views import LoginView
 from django.contrib import messages
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse, HttpResponseForbidden
 from django.http.response import HttpResponseRedirectBase
+from django.views import View
+from django.views.generic.base import TemplateResponseMixin
+from django.views.generic.edit import FormMixin
 from webauthn import (
     generate_registration_options,
     verify_registration_response,
@@ -124,36 +126,32 @@ def login_config(request):
     return HttpResponse(content=options_to_json(options), content_type="application/json")
 
 
-def login_webauthn(request):
-    try:
-        login_response_json = json.loads(request.body.decode("utf-8"))
-    except JSONDecodeError as error:
-        message = f"Login failed. Failed parsing JSON. Error: {error}"
-        messages.error(request, message, fail_silently=True)
-        return HttpUnprocessableEntity(message)
+class LoginView(View, FormMixin, TemplateResponseMixin):
+    template_name = "account/webauthn/login.html"
+    form_class = WebAuthNLoginForm
 
-    user = authenticate(request,
-                        # TODO: this dict access might fail
-                        credential_id=base64encode(base64url_to_bytes(login_response_json["id"])),
-                        data=request.body.decode("utf-8"))
-    if user is None:
-        return HttpResponseForbidden(f"Login failed.")
+    def get(self, request, *args, **kwargs):
+        """Handle GET requests: instantiate a blank version of the form."""
+        return self.render_to_response(self.get_context_data())
 
-    login(request, user)
+    def post(self, request, *args, **kwargs):
+        try:
+            login_response_json = json.loads(request.body.decode("utf-8"))
+        except JSONDecodeError as error:
+            message = f"Login failed. Failed parsing JSON. Error: {error}"
+            messages.error(request, message, fail_silently=True)
+            return HttpUnprocessableEntity(message)
 
-    return HttpResponse("Success")
+        user = authenticate(request,
+                            # TODO: this dict access might fail
+                            credential_id=base64encode(base64url_to_bytes(login_response_json["id"])),
+                            data=request.body.decode("utf-8"))
+        if user is None:
+            return HttpResponseForbidden(f"Login failed.")
 
+        login(request, user)
 
-class WebAuthNLoginView(LoginView):
-    def get_context_data(self, **kwargs):
-        ret = super(WebAuthNLoginView, self).get_context_data(**kwargs)
-
-        ret.update(
-            {
-                "webauthn_form": WebAuthNLoginForm()
-            }
-        )
-        return ret
+        return HttpResponse("Success")
 
 
-login_view = WebAuthNLoginView.as_view()
+login_view = LoginView.as_view()

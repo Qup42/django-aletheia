@@ -78,7 +78,7 @@
             }
         }
 
-        await fetch("{% url "webauthnauth:login_view" %}",
+        await fetch("{% url "webauthnauth:login" %}",
             {
                 "method": "POST",
                 "headers": {"X-CSRFToken": csrftoken},
