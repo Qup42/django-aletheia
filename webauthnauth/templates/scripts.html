@@ -1,7 +1,7 @@
 <script src="https://cdn.jsdelivr.net/gh/herrjemand/Base64URL-ArrayBuffer@latest/lib/base64url-arraybuffer.js"></script>
 <script>
     async function register() {
-        let registration_config = await fetch("{% url "get_registration_config" %}")
+        let registration_config = await fetch("{% url "webauthnauth:get_registration_config" %}")
             .then(response => response.json())
             .then(login_config => {
                 login_config.user.id = window.base64url.decode(login_config.user.id);
@@ -28,14 +28,14 @@
             }
         }
 
-        await fetch("{% url "register" %}", {"method": "POST", "body": JSON.stringify(encoded)});
+        await fetch("{% url "webauthnauth:register" %}", {"method": "POST", "body": JSON.stringify(encoded)});
     }
 
     async function login_webauth(username) {
         let form_data = new FormData();
         form_data.append("login", username);
 
-        let registration_config = await fetch("{% url "get_login_config" %}", {"method": "POST", body: form_data})
+        let registration_config = await fetch("{% url "webauthnauth:get_login_config" %}", {"method": "POST", body: form_data})
             .then(response => response.json())
             .then(login_config => {
                 login_config.challenge = window.base64url.decode(login_config.challenge);
@@ -63,7 +63,7 @@
             }
         }
 
-        await fetch("{% url "login_webauthn" %}", {"method": "POST", "body": JSON.stringify(encoded)})
+        await fetch("{% url "webauthnauth:login_view" %}", {"method": "POST", "body": JSON.stringify(encoded)})
             .then(response => {
                 if (response.status === 200) {
                     window.location.replace("{% url "index" %}");
