@@ -4,7 +4,7 @@
 </script>
 <script>
     async function register() {
-        let registration_config = await fetch("{% url "webauthnauth:get_registration_config" %}")
+        let registration_config = await fetch("{% url "webauthnauth:register_config" %}")
             .then(response => response.json())
             .then(login_config => {
                 login_config.user.id = window.base64url.decode(login_config.user.id);
@@ -44,7 +44,7 @@
         let form_data = new FormData();
         form_data.append("login", username);
 
-        let registration_config = await fetch("{% url "webauthnauth:get_login_config" %}",
+        let registration_config = await fetch("{% url "webauthnauth:login_config" %}",
             {
                 "method": "POST",
                 "headers": {"X-CSRFToken": csrftoken},

@@ -4,8 +4,8 @@ from webauthnauth import views
 
 app_name = "webauthnauth"
 urlpatterns = [
-    path('get_registration_config', views.registration_config, name="get_registration_config"),
-    path('register', views.register, name="register"),
-    path('get_login_config', views.login_config, name="get_login_config"),
-    path('login', views.login_view, name="login")
+    path('config/register/', views.registration_config, name="register_config"),
+    path('register/', views.register, name="register"),
+    path('config/login/', views.login_config, name="login_config"),
+    path('login/', views.login_view, name="login")
 ]
