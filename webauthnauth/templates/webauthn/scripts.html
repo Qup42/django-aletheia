@@ -28,7 +28,8 @@
             });
         }
         catch (error) {
-           register_status_callback("fail", error)
+            register_status_callback("fail", error)
+            return;
         }
 
         const encoded = {
