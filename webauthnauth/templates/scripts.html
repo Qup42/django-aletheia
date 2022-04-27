@@ -5,7 +5,9 @@
         csrftoken = document.querySelector("[name=csrfmiddlewaretoken]").value;
     });
 
-    async function register() {
+    async function register(register_status_callback = (status, msg) => {}) {
+        register_status_callback("start", undefined);
+
         let registration_config = await fetch("{% url "webauthnauth:register_config" %}")
             .then(response => response.json())
             .then(login_config => {
@@ -19,9 +21,15 @@
                 return login_config
             });
 
-        const credential = await navigator.credentials.create({
-            publicKey: registration_config
-        });
+        let credential;
+        try {
+            credential = await navigator.credentials.create({
+                publicKey: registration_config
+            });
+        }
+        catch (error) {
+           register_status_callback("fail", error)
+        }
 
         const encoded = {
             "rawId": window.base64url.encode(credential.rawId),
@@ -40,9 +48,12 @@
                 "mode": "same-origin",
                 "body": JSON.stringify(encoded)
             });
+        register_status_callback("success", undefined);
     }
 
-    async function login_webauth(username) {
+    async function login_webauth(username, login_status_callback = (status, msg) => {}) {
+        login_status_callback("start", undefined);
+
         let form_data = new FormData();
         form_data.append("login", username);
 
@@ -64,9 +75,15 @@
                 return login_config
             });
 
-        const credential = await navigator.credentials.get({
-            publicKey: registration_config
-        });
+        let credential;
+        try {
+            credential = await navigator.credentials.get({
+                publicKey: registration_config
+            });
+        } catch (error) {
+            login_status_callback("fail", error)
+            return;
+        }
 
         const encoded = {
             "rawId": window.base64url.encode(credential.rawId),
@@ -90,6 +107,9 @@
             .then(response => {
                 if (response.status === 200) {
                     window.location.replace("{% url "index" %}");
+                    login_status_callback("success", undefined);
+                } else {
+                    login_status_callback("fail", response.statusText);
                 }
             })
     }
