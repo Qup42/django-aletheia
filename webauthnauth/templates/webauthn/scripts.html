@@ -19,7 +19,8 @@
                     }
                 }
                 return login_config
-            });
+            })
+            .catch(reason => register_status_callback("fail", reason));
 
         let credential;
         try {
@@ -48,8 +49,14 @@
                 "headers": {"X-CSRFToken": csrftoken},
                 "mode": "same-origin",
                 "body": JSON.stringify(encoded)
+            })
+            .then(response => {
+                if (response.status === 200) {
+                    register_status_callback("success", undefined);
+                } else {
+                    register_status_callback("fail", response.statusText);
+                }
             });
-        register_status_callback("success", undefined);
     }
 
     async function login_webauth(username, login_status_callback = (status, msg) => {}) {
@@ -58,7 +65,7 @@
         let form_data = new FormData();
         form_data.append("login", username);
 
-        let registration_config = await fetch("{% url "webauthnauth:login_config" %}",
+        let login_config = await fetch("{% url "webauthnauth:login_config" %}",
             {
                 "method": "POST",
                 "headers": {"X-CSRFToken": csrftoken},
@@ -74,12 +81,13 @@
                     }
                 }
                 return login_config
-            });
+            })
+            .catch(reason => login_status_callback("fail", reason));
 
         let credential;
         try {
             credential = await navigator.credentials.get({
-                publicKey: registration_config
+                publicKey: login_config
             });
         } catch (error) {
             login_status_callback("fail", error)
