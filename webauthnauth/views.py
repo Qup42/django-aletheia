@@ -142,6 +142,7 @@ class LoginView(View, FormMixin, TemplateResponseMixin):
             return HttpResponseForbidden(f"Login failed.")
 
         login(request, user)
+        messages.success(request, f"Successfully signed in as {user.username}.", fail_silently=True)
 
         return HttpResponse("Success")
 
