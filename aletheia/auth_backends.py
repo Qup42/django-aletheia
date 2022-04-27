@@ -2,6 +2,7 @@ from dateutil.relativedelta import relativedelta
 from django.contrib import messages
 from django.contrib.auth import get_user_model
 from django.utils import timezone
+from django.utils.timezone import now
 from webauthn import verify_authentication_response
 from webauthn.helpers.exceptions import InvalidAuthenticationResponse
 from webauthn.helpers.structs import AuthenticationCredential
@@ -59,6 +60,7 @@ class WebAuthNBackend:
             return None
 
         credential.sign_count = authentication_verification.new_sign_count
-        credential.save(update_fields=["sign_count"])
+        credential.last_used_on = now()
+        credential.save(update_fields=["sign_count", "last_used_on"])
         request.session["logging_in_with_webauthn"] = True
         return credential.user
