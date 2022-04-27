@@ -25,10 +25,10 @@ from webauthn.helpers.structs import (
     RegistrationCredential,
 )
 
-from webauthnauth import settings
-from webauthnauth.forms import WebAuthNLoginForm
-from webauthnauth.models import AuthData
-from webauthnauth.util import base64encode, base64decode
+from aletheia import settings
+from aletheia.forms import WebAuthNLoginForm
+from aletheia.models import AuthData
+from aletheia.util import base64encode, base64decode
 
 
 class HttpUnprocessableEntity(HttpResponseRedirectBase):

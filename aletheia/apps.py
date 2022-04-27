@@ -4,7 +4,7 @@ from django.db.models.signals import post_save
 
 
 class AppConfig(AppConfig):
-    name = 'webauthnauth'
+    name = 'aletheia'
 
     def ready(self):
         from .models import update_last_password_login, create_webauthnuser

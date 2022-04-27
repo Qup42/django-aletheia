@@ -6,9 +6,9 @@ from webauthn import verify_authentication_response
 from webauthn.helpers.exceptions import InvalidAuthenticationResponse
 from webauthn.helpers.structs import AuthenticationCredential
 
-from webauthnauth import settings
-from webauthnauth.models import AuthData
-from webauthnauth.util import base64decode
+from aletheia import settings
+from aletheia.models import AuthData
+from aletheia.util import base64decode
 
 
 class WebAuthNBackend:

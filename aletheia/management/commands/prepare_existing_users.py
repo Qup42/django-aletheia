@@ -3,7 +3,7 @@ import datetime
 from django.contrib.auth.models import User
 from django.core.management.base import BaseCommand
 
-from webauthnauth.models import WebAuthNUser
+from aletheia.models import WebAuthNUser
 
 
 class Command(BaseCommand):

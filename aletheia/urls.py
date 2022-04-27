@@ -1,8 +1,8 @@
 from django.urls import path
 
-from webauthnauth import views
+from aletheia import views
 
-app_name = "webauthnauth"
+app_name = "aletheia"
 urlpatterns = [
     path('config/register/', views.registration_config, name="register_config"),
     path('register/', views.register, name="register"),

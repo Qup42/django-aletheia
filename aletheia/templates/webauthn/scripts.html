@@ -4,7 +4,7 @@
     async function register(register_status_callback = (status, msg) => {}) {
         register_status_callback("start", undefined);
 
-        let registration_config = await fetch("{% url "webauthnauth:register_config" %}")
+        let registration_config = await fetch("{% url "aletheia:register_config" %}")
             .then(response => response.json())
             .then(login_config => {
                 login_config.user.id = window.base64url.decode(login_config.user.id);
@@ -39,7 +39,7 @@
             }
         }
 
-        await fetch("{% url "webauthnauth:register" %}",
+        await fetch("{% url "aletheia:register" %}",
             {
                 "method": "POST",
                 "headers": {"X-CSRFToken": Cookies.get('csrftoken')},
@@ -61,7 +61,7 @@
         let form_data = new FormData();
         form_data.append("login", username);
 
-        let login_config = await fetch("{% url "webauthnauth:login_config" %}",
+        let login_config = await fetch("{% url "aletheia:login_config" %}",
             {
                 "method": "POST",
                 "headers": {"X-CSRFToken": Cookies.get('csrftoken')},
@@ -102,7 +102,7 @@
             }
         }
 
-        await fetch("{% url "webauthnauth:login" %}",
+        await fetch("{% url "aletheia:login" %}",
             {
                 "method": "POST",
                 "headers": {"X-CSRFToken": Cookies.get('csrftoken')},
