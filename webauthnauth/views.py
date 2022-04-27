@@ -119,7 +119,7 @@ def login_config(request):
 
 
 class LoginView(View, FormMixin, TemplateResponseMixin):
-    template_name = "account/webauthn/login.html"
+    template_name = "webauthn/login.html"
     form_class = WebAuthNLoginForm
 
     def get(self, request, *args, **kwargs):
