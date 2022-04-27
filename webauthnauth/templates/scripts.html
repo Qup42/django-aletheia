@@ -1,8 +1,10 @@
 <script src="https://cdn.jsdelivr.net/gh/herrjemand/Base64URL-ArrayBuffer@latest/lib/base64url-arraybuffer.js"></script>
 <script>
-    const csrftoken = document.querySelector("[name=csrfmiddlewaretoken]").value;
-</script>
-<script>
+    let csrftoken;
+    document.addEventListener("DOMContentLoaded", function (event) {
+        csrftoken = document.querySelector("[name=csrfmiddlewaretoken]").value;
+    });
+
     async function register() {
         let registration_config = await fetch("{% url "webauthnauth:register_config" %}")
             .then(response => response.json())
