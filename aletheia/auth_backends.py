@@ -1,7 +1,6 @@
 from dateutil.relativedelta import relativedelta
 from django.contrib import messages
 from django.contrib.auth import get_user_model
-from django.utils import timezone
 from django.utils.timezone import now
 from webauthn import verify_authentication_response
 from webauthn.helpers.exceptions import InvalidAuthenticationResponse
@@ -39,7 +38,7 @@ class WebAuthNBackend:
             messages.error(request, f"This credential_id is not registered.", fail_silently=True)
             return None
 
-        if credential.user.webauthnuser.last_login_with_password + relativedelta(months=6) < timezone.now():
+        if credential.user.webauthnuser.last_login_with_password + relativedelta(months=6) < now():
             messages.error(request, f"Authentication with WebAuthN failed. Please login with password.",
                            fail_silently=True)
             return None
