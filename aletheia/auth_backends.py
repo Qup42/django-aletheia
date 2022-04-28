@@ -38,11 +38,6 @@ class WebAuthNBackend:
             messages.error(request, f"This credential_id is not registered.", fail_silently=True)
             return None
 
-        if credential.user.webauthnuser.last_login_with_password + relativedelta(months=6) < now():
-            messages.error(request, f"Authentication with WebAuthN failed. Please login with password.",
-                           fail_silently=True)
-            return None
-
         try:
             authentication_verification = verify_authentication_response(
                 credential=AuthenticationCredential.parse_raw(data),
@@ -56,6 +51,11 @@ class WebAuthNBackend:
         except InvalidAuthenticationResponse:
             # TODO: give concrete feedback about why the authentication failed?
             messages.error(request, f"Authentication failed", fail_silently=True)
+            return None
+
+        if credential.user.webauthnuser.last_login_with_password + relativedelta(months=6) < now():
+            messages.error(request, f"Authentication with WebAuthN failed. Please login with password.",
+                           fail_silently=True)
             return None
 
         credential.sign_count = authentication_verification.new_sign_count
