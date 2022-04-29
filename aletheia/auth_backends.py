@@ -35,7 +35,7 @@ class WebAuthNBackend:
 
         credential = AuthData.objects.filter(credential_id=credential_id).first()
         if not credential:
-            messages.error(request, f"This credential_id is not registered.", fail_silently=True)
+            messages.error(request, f"Authentication failed", fail_silently=True)
             return None
 
         try:
@@ -49,7 +49,6 @@ class WebAuthNBackend:
                 credential_public_key=base64decode(credential.public_key)
             )
         except InvalidAuthenticationResponse:
-            # TODO: give concrete feedback about why the authentication failed?
             messages.error(request, f"Authentication failed", fail_silently=True)
             return None
 
