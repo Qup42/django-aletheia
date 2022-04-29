@@ -43,6 +43,11 @@ class WebAuthNBackend:
             logger.warning(f"Credential with ID {credential_id} unknown.")
             return None
 
+        if not self.user_can_authenticate(credential.user):
+            messages.error(request, f"Authentication failed", fail_silently=True)
+            logger.warning(f"User {credential.user.username} is disabled.")
+            return None
+
         try:
             authentication_verification = verify_authentication_response(
                 credential=AuthenticationCredential.parse_raw(data),
@@ -69,3 +74,11 @@ class WebAuthNBackend:
         credential.save(update_fields=["sign_count", "last_used_on"])
         request.session["logging_in_with_webauthn"] = True
         return credential.user
+
+    def user_can_authenticate(self, user):
+        """
+        Reject users with is_active=False. Custom user models that don't have
+        that attribute are allowed.
+        """
+        is_active = getattr(user, 'is_active', None)
+        return is_active or is_active is None
