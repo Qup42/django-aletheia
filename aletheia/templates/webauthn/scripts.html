@@ -1,6 +1,15 @@
 <script src="https://cdn.jsdelivr.net/gh/herrjemand/Base64URL-ArrayBuffer@latest/lib/base64url-arraybuffer.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/js-cookie@3.0.1/dist/js.cookie.min.js" integrity="sha256-0H3Nuz3aug3afVbUlsu12Puxva3CP4EhJtPExqs54Vg=" crossorigin="anonymous"></script>
 <script>
+    if (!window.PublicKeyCredential) {
+        if(typeof create_error === "function") {
+            create_error("No WebAuthN Support Detected!")
+        }
+        else {
+            alert("No WebAuthN Support Detected!")
+        }
+    }
+
     async function register(register_status_callback = (status, msg) => {}) {
         register_status_callback("start", undefined);
 
