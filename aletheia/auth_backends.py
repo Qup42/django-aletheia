@@ -1,3 +1,5 @@
+import logging
+
 from dateutil.relativedelta import relativedelta
 from django.contrib import messages
 from django.contrib.auth import get_user_model
@@ -9,6 +11,8 @@ from webauthn.helpers.structs import AuthenticationCredential
 from aletheia import settings
 from aletheia.models import AuthData
 from aletheia.util import base64decode
+
+logger = logging.getLogger(__name__)
 
 
 class WebAuthNBackend:
@@ -36,6 +40,7 @@ class WebAuthNBackend:
         credential = AuthData.objects.filter(credential_id=credential_id).first()
         if not credential:
             messages.error(request, f"Authentication failed", fail_silently=True)
+            logger.warning(f"Credential with ID {credential_id} unknown.")
             return None
 
         try:
@@ -48,13 +53,15 @@ class WebAuthNBackend:
                 credential_current_sign_count=credential.sign_count,
                 credential_public_key=base64decode(credential.public_key)
             )
-        except InvalidAuthenticationResponse:
+        except InvalidAuthenticationResponse as e:
             messages.error(request, f"Authentication failed", fail_silently=True)
+            logger.warning(f"Authentication failed for ID {credential_id}: {e}")
             return None
 
         if credential.user.webauthnuser.last_login_with_password + relativedelta(months=6) < now():
             messages.error(request, f"Authentication with WebAuthN failed. Please login with password.",
                            fail_silently=True)
+            logger.info("Last Password Login > 6 months. Failing login.")
             return None
 
         credential.sign_count = authentication_verification.new_sign_count

@@ -1,4 +1,5 @@
 import json
+import logging
 import secrets
 from json import JSONDecodeError
 
@@ -16,6 +17,7 @@ from webauthn import (
     options_to_json,
     base64url_to_bytes, generate_authentication_options
 )
+from webauthn.helpers.exceptions import InvalidRegistrationResponse
 from webauthn.helpers.structs import (
     AttestationConveyancePreference,
     AuthenticatorSelectionCriteria,
@@ -34,6 +36,8 @@ from aletheia.util import base64encode, base64decode
 class HttpUnprocessableEntity(HttpResponseRedirectBase):
     status_code = 422
 
+
+logger = logging.getLogger(__name__)
 
 @login_required
 def registration_config(request):
@@ -79,7 +83,7 @@ def register(request):
             expected_rp_id=settings.RELYING_PARTY_ID,
             require_user_verification=False,
         )
-    except Exception as e:
+    except InvalidRegistrationResponse as e:
         messages.error(request, f"Registration failed. Error: {e}", fail_silently=True)
         return HttpUnprocessableEntity(f"Registration failed. Error: {e}")
 
@@ -132,6 +136,7 @@ class LoginView(View, FormMixin, TemplateResponseMixin):
         except JSONDecodeError as error:
             message = f"Login failed. Failed parsing JSON. Error: {error}"
             messages.error(request, message, fail_silently=True)
+            logger.warning(f"Failed parsing JSON. Error: {error}")
             return HttpUnprocessableEntity(message)
 
         user = authenticate(request,
