@@ -60,3 +60,7 @@ The user is now logged in. [Django Messages](https://docs.djangoproject.com/en/4
 `aletheia:login` renders the template `webauthn/login.html` with the `WebAuthNLoginForm` on get.
 
 The template `webauthn/scripts.html` can be included into templates. It provides two asynchronous functions. The do all the steps required for login/registration that are described above and can be provided with a functions that receives the status ("start", "success", "fail") and an optional message. They are `register(register_status_callback = (status, msg) => {})` and `login_webauthn(username, login_status_callback = (status, msg) => {})`.
+
+## Notes
+Firefox on Linux and MacOS doesn't support the APIs needed for client-side discoverable keys.
+See [Bug 1530370](https://bugzilla.mozilla.org/show_bug.cgi?id=1530370) and [Bug 1294514](https://bugzilla.mozilla.org/show_bug.cgi?id=1294514).
