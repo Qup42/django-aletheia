@@ -111,21 +111,9 @@
             }
         }
 
-        await fetch("{% url "aletheia:login" %}",
-            {
-                "method": "POST",
-                "headers": {"X-CSRFToken": Cookies.get('csrftoken')},
-                "mode": "same-origin",
-                "body": JSON.stringify(encoded)
-            })
-            .then(response => {
-                if (response.status === 200) {
-                    window.location.replace("{% url "index" %}");
-                    login_status_callback("success", undefined);
-                } else {
-                    login_status_callback("fail", response.statusText);
-                }
-            })
+        document.getElementById("{{ form.client_id.id_for_label }}").value = credential.id;
+        document.getElementById("{{ form.webauthn_data.id_for_label }}").value = JSON.stringify(encoded);
+        document.getElementById("form_login").submit();
     }
 
 </script>

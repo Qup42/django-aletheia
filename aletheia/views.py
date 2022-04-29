@@ -1,21 +1,17 @@
-import json
 import logging
 import secrets
-from json import JSONDecodeError
 
 from django.contrib import messages
-from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required
-from django.http import HttpResponse, HttpResponseForbidden
+from django.http import HttpResponse
 from django.http.response import HttpResponseRedirectBase
-from django.views import View
 from django.views.generic.base import TemplateResponseMixin
-from django.views.generic.edit import FormMixin
+from django.views.generic.edit import FormMixin, ProcessFormView
 from webauthn import (
     generate_registration_options,
     verify_registration_response,
     options_to_json,
-    base64url_to_bytes, generate_authentication_options
+    generate_authentication_options
 )
 from webauthn.helpers.exceptions import InvalidRegistrationResponse
 from webauthn.helpers.structs import (
@@ -30,7 +26,7 @@ from webauthn.helpers.structs import (
 from aletheia import settings
 from aletheia.forms import WebAuthNLoginForm
 from aletheia.models import AuthData
-from aletheia.util import base64encode, base64decode
+from aletheia.util import base64encode, base64decode, get_request_param, get_next_redirect_url
 
 
 class HttpUnprocessableEntity(HttpResponseRedirectBase):
@@ -122,34 +118,40 @@ def login_config(request):
     return HttpResponse(content=options_to_json(options), content_type="application/json")
 
 
-class LoginView(View, FormMixin, TemplateResponseMixin):
+class LoginView(TemplateResponseMixin, FormMixin, ProcessFormView):
     template_name = "webauthn/login.html"
     form_class = WebAuthNLoginForm
+    success_url = None
+    redirect_field_name = "next"
 
-    def get(self, request, *args, **kwargs):
-        """Handle GET requests: instantiate a blank version of the form."""
-        return self.render_to_response(self.get_context_data())
+    def get_form_kwargs(self):
+        kwargs = super(LoginView, self).get_form_kwargs()
+        kwargs["request"] = self.request
+        return kwargs
 
-    def post(self, request, *args, **kwargs):
-        try:
-            login_response_json = json.loads(request.body.decode("utf-8"))
-        except JSONDecodeError as error:
-            message = f"Login failed. Failed parsing JSON. Error: {error}"
-            messages.error(request, message, fail_silently=True)
-            logger.warning(f"Failed parsing JSON. Error: {error}")
-            return HttpUnprocessableEntity(message)
+    def form_valid(self, form):
+        success_url = self.get_success_url()
+        return form.login(self.request, redirect_url=success_url)
 
-        user = authenticate(request,
-                            # TODO: this dict access might fail
-                            credential_id=base64encode(base64url_to_bytes(login_response_json["id"])),
-                            data=request.body.decode("utf-8"))
-        if user is None:
-            return HttpResponseForbidden(f"Login failed.")
+    def get_success_url(self):
+        # Explicitly passed ?next= URL takes precedence
+        ret = (
+                get_next_redirect_url(self.request, self.redirect_field_name)
+                or self.success_url
+        )
+        return ret
 
-        login(request, user)
-        messages.success(request, f"Successfully signed in as {user.username}.", fail_silently=True)
+    def get_context_data(self, **kwargs):
+        ret = super(LoginView, self).get_context_data(**kwargs)
+        redirect_field_value = get_request_param(self.request, self.redirect_field_name)
 
-        return HttpResponse("Success")
+        ret.update(
+            {
+                "redirect_field_name": self.redirect_field_name,
+                "redirect_field_value": redirect_field_value,
+            }
+        )
+        return ret
 
 
 login_view = LoginView.as_view()

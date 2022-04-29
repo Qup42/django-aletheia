@@ -16,3 +16,7 @@ EXPECTED_ORIGIN = getattr(
 FORCE_PASSWORD_TIMEOUT = getattr(
     settings, "WEBAUTHN_FORCE_PASSWORD_TIMEOUT", relativedelta(months=6)
 )
+
+SESSION_REMEMBER = getattr(
+    settings, "WEBAUTHN_SESSION_REMEMBER", None
+)
