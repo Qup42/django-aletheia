@@ -26,7 +26,7 @@ from webauthn.helpers.structs import (
 from aletheia import settings
 from aletheia.forms import WebAuthNLoginForm
 from aletheia.models import AuthData
-from aletheia.util import base64encode, base64decode, get_request_param, get_next_redirect_url
+from aletheia.util import base64encode, base64decode, get_request_param, get_redirect_url
 
 
 class HttpUnprocessableEntity(HttpResponseRedirectBase):
@@ -136,7 +136,7 @@ class LoginView(TemplateResponseMixin, FormMixin, ProcessFormView):
     def get_success_url(self):
         # Explicitly passed ?next= URL takes precedence
         ret = (
-                get_next_redirect_url(self.request, self.redirect_field_name)
+                get_redirect_url(self.request, self.redirect_field_name)
                 or self.success_url
         )
         return ret
