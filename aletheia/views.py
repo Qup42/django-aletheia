@@ -5,6 +5,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
 from django.http.response import HttpResponseRedirectBase
+from django.urls import reverse_lazy
 from django.views.generic.base import TemplateResponseMixin
 from django.views.generic.edit import FormMixin, ProcessFormView
 from webauthn import (
@@ -121,7 +122,7 @@ def login_config(request):
 class LoginView(TemplateResponseMixin, FormMixin, ProcessFormView):
     template_name = "webauthn/login.html"
     form_class = WebAuthNLoginForm
-    success_url = None
+    success_url = reverse_lazy("index")
     redirect_field_name = "next"
 
     def get_form_kwargs(self):
