@@ -18,10 +18,10 @@ logger = logging.getLogger(__name__)
 class WebAuthNBackend:
 
     def get_user(self, user_id):
-        User = get_user_model()
+        user = get_user_model()
         try:
-            return User.objects.get(pk=user_id)
-        except User.DoesNotExist:
+            return user.objects.get(pk=user_id)
+        except user.DoesNotExist:
             return None
 
     def authenticate(self, request, credential_id: str, data: str = None):
@@ -34,17 +34,17 @@ class WebAuthNBackend:
         """
         challenge = request.session.get("challenge")
         if not challenge:
-            messages.error(request, f"Missing challenge in session", fail_silently=True)
+            messages.error(request, "Missing challenge in session", fail_silently=True)
             return None
 
         credential = AuthData.objects.filter(credential_id=credential_id).first()
         if not credential:
-            messages.error(request, f"Authentication failed", fail_silently=True)
+            messages.error(request, "Authentication failed", fail_silently=True)
             logger.warning(f"Credential with ID {credential_id} unknown.")
             return None
 
         if not self.user_can_authenticate(credential.user):
-            messages.error(request, f"Authentication failed", fail_silently=True)
+            messages.error(request, "Authentication failed", fail_silently=True)
             logger.warning(f"User {credential.user.username} is disabled.")
             return None
 
@@ -58,13 +58,13 @@ class WebAuthNBackend:
                 credential_current_sign_count=credential.sign_count,
                 credential_public_key=base64decode(credential.public_key)
             )
-        except InvalidAuthenticationResponse as e:
-            messages.error(request, f"Authentication failed", fail_silently=True)
-            logger.warning(f"Authentication failed for ID {credential_id}: {e}")
+        except InvalidAuthenticationResponse as error:
+            messages.error(request, "Authentication failed", fail_silently=True)
+            logger.warning(f"Authentication failed for ID {credential_id}: {error}")
             return None
 
         if credential.user.webauthnuser.last_login_with_password + relativedelta(months=6) < now():
-            messages.error(request, f"Authentication with WebAuthN failed. Please login with password.",
+            messages.error(request, "Authentication with WebAuthN failed. Please login with password.",
                            fail_silently=True)
             logger.info("Last Password Login > 6 months. Failing login.")
             return None

@@ -67,7 +67,7 @@ def registration_config(request):
 def register(request):
     if "challenge" not in request.session:
         messages.error(request, "Missing challenge in this session.", fail_silently=True)
-        return HttpUnprocessableEntity(f"Missing challenge in this session.")
+        return HttpUnprocessableEntity("Missing challenge in this session.")
     else:
         challenge = request.session.get("challenge")
 
@@ -100,8 +100,8 @@ def login_config(request):
     request.session["challenge"] = challenge
 
     if "login" not in request.POST:
-        messages.error(request, f"Missing \"login\" POST field", fail_silently=True)
-        return HttpUnprocessableEntity(f"Missing \"login\" POST field")
+        messages.error(request, "Missing \"login\" POST field", fail_silently=True)
+        return HttpUnprocessableEntity("Missing \"login\" POST field")
     else:
         username = request.POST["login"]
 
