@@ -63,7 +63,7 @@ class WebAuthNBackend:
             logger.warning(f"Authentication failed for ID {credential_id}: {error}")
             return None
 
-        if credential.user.webauthnuser.last_login_with_password + relativedelta(months=6) < now():
+        if credential.user.webauthnuser.should_force_password_login:
             messages.error(request, "Authentication with WebAuthN failed. Please login with password.",
                            fail_silently=True)
             logger.info("Last Password Login > 6 months. Failing login.")

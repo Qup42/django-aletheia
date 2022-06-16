@@ -1,3 +1,4 @@
+from dateutil.relativedelta import relativedelta
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import User
 from django.db import models
@@ -36,6 +37,10 @@ class AuthData(models.Model):
 class WebAuthNUser(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     last_login_with_password = models.DateTimeField(default=now)
+
+    @property
+    def should_force_password_login(self):
+        return self.last_login_with_password + relativedelta(months=6) < now()
 
     def __str__(self):
         return f"WebAuthNUser(user={self.user}, last_login_with_password={self.last_login_with_password})"
