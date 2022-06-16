@@ -27,7 +27,15 @@ class AuthData(models.Model):
     created_on = models.DateTimeField(auto_now_add=True)
     last_used_on = models.DateTimeField(default=now)
 
+    def __str__(self):
+        return f"AuthData(id={self.id}, user={self.user}, name={self.name}, credential_id={self.credential_id}, " \
+               f"public_key={self.public_key}, sign_count={self.sign_count}, created_on={self.created_on}, " \
+               f"last_used_on={self.last_used_on}) "
+
 
 class WebAuthNUser(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     last_login_with_password = models.DateTimeField(default=now)
+
+    def __str__(self):
+        return f"WebAuthNUser(user={self.user}, last_login_with_password={self.last_login_with_password})"
