@@ -1,3 +1,4 @@
 include LICENSE
 include README.md
 recursive-include aletheia/templates *.html
+recursive-include aletheia/static *.js

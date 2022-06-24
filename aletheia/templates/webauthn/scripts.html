@@ -1,5 +1,6 @@
-<script src="https://cdn.jsdelivr.net/gh/herrjemand/Base64URL-ArrayBuffer@latest/lib/base64url-arraybuffer.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/js-cookie@3.0.1/dist/js.cookie.min.js" integrity="sha256-0H3Nuz3aug3afVbUlsu12Puxva3CP4EhJtPExqs54Vg=" crossorigin="anonymous"></script>
+{% load static %}
+<script src="{% static "aletheia/base64url-arraybuffer.min.js" %}"></script>
+<script src="{% static "aletheia/js.cookie.min.js" %}"></script>
 <script>
     if (!window.PublicKeyCredential) {
         if(typeof create_error === "function") {
