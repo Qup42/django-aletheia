@@ -116,4 +116,15 @@
         document.getElementById("form_login").submit();
     }
 
+    {%  url "aletheia:login" as login_url %}
+    {% if request.path == login_url %}
+        {# The user has to be saved as a cookie because only an HTTP Redirect is done after knowing the login succeeded. #}
+        const user = Cookies.get("django-aletheia-webauthn-user");
+        if (user) {
+            document.getElementById("{{ form.username.id_for_label }}").value = user;
+            login_webauth(user);
+        }
+    {% endif %}
+
+
 </script>

@@ -54,5 +54,6 @@ class WebAuthNLoginForm(forms.Form):
             request.session.set_expiry(0)
 
         response = HttpResponseRedirect(redirect_url)
+        response.set_cookie("django-aletheia-webauthn-user", self.user.username, secure=True)
 
         return response
